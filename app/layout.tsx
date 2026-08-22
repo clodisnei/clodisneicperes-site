@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     creator: "Clodisnei Cavalcante Peres",
     keywords: ["O Que Restou de Mim", "Clodisnei Cavalcante Peres", "recomeço", "autoconhecimento", "superação", "hipnose", "PNL", "neurociência"],
     alternates: { canonical: "/" },
-    verification: content.googleSiteVerification ? { google: content.googleSiteVerification } : undefined,
+    verification: { google: "zLU-LDRVThPgoeXh7lOS7t8pKhEcAUo7ySPwOLlZHiU" },
     openGraph: {
       title: "O Que Restou de Mim | Clodisnei Cavalcante Peres",
       description: "Uma história real sobre perdas, identidade e recomeço.",
