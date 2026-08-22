@@ -18,7 +18,7 @@ mkdir -p "${pages_output}"
 cp -R "${project_root}/dist/client/." "${pages_output}/"
 
 "${project_root}/node_modules/.bin/esbuild" \
-  "${project_root}/dist/server/index.js" \
+  "${project_root}/scripts/pages-worker-entry.ts" \
   --bundle \
   --format=esm \
   --platform=neutral \
