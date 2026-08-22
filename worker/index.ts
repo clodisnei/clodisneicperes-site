@@ -28,8 +28,14 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const staysOnProtectedHost =
+      url.pathname.startsWith("/admin") ||
+      url.pathname.startsWith("/api/admin") ||
+      url.pathname === "/signin-with-chatgpt" ||
+      url.pathname === "/signout-with-chatgpt" ||
+      url.pathname === "/callback";
 
-    if (url.hostname.endsWith(".chatgpt.site")) {
+    if (url.hostname.endsWith(".chatgpt.site") && !staysOnProtectedHost) {
       const destination = new URL(request.url);
       destination.protocol = "https:";
       destination.host = "clodisneicperes-site.pages.dev";
