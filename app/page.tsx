@@ -514,7 +514,7 @@ export default async function Home() {
           )}
           <div className="footer-meta">
             <p>Conteúdo educativo e reflexivo. Não substitui acompanhamento profissional.</p>
-            <div><a href="/privacidade">Privacidade</a><a href="/admin">Área administrativa</a></div>
+            <div><a href="/privacidade">Privacidade</a><a href="https://clodisnei-peres.clodisneicp.chatgpt.site/admin">Área administrativa</a></div>
           </div>
         </div>
       </footer>
