@@ -88,6 +88,13 @@ or enforce explicit server-side membership or allowlist checks.
 Use SIWC for account pages, user-specific dashboards, saved records, and write
 actions tied to the current ChatGPT user. Leave public content anonymous.
 
+## Official Cloudflare Admin
+
+The Cloudflare Pages deployment exposes the editor at `/admin`. Configure the
+production secret `ADMIN_PASSWORD`; the editor creates an HTTP-only signed
+session after login. Site content is stored in the D1 binding `DB` and uploaded
+files in the R2 binding `BUCKET`.
+
 ## Diagnostic Commands
 
 - `npm run install:ci`: perform the one bounded lockfile install

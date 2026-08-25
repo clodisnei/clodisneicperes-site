@@ -1,5 +1,5 @@
 import { getChatGPTUser } from "@/app/chatgpt-auth";
-import { isAdministrator } from "@/lib/admin-auth";
+import { isAdministratorUser } from "@/lib/admin-auth";
 import { listWaitlist } from "@/lib/site-metrics";
 
 function csvCell(value: string): string {
@@ -9,7 +9,7 @@ function csvCell(value: string): string {
 export async function GET() {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "Entre na sua conta para continuar." }, { status: 401 });
-  if (!isAdministrator(user.email)) return Response.json({ error: "Conta sem permissão administrativa." }, { status: 403 });
+  if (!isAdministratorUser(user)) return Response.json({ error: "Conta sem permissão administrativa." }, { status: 403 });
 
   const rows = await listWaitlist();
   const csv = [

@@ -513,6 +513,11 @@ button, input, textarea, summary { font: inherit; }
 .save-message.error { color: #ffc0b3; }
 .admin-access-card { max-width: 650px; margin: 10vh auto; padding: 48px; background: var(--paper); border: 1px solid #d5c8b6; }
 .admin-access-card > p:not(.eyebrow) { margin: 20px 0 28px; color: var(--muted); line-height: 1.7; }
+.admin-access-card form { margin: 26px 0; display: grid; gap: 18px; }
+.admin-access-card form label { display: grid; gap: 8px; color: #3e3933; font-size: 13px; font-weight: 700; }
+.admin-access-card form input { width: 100%; padding: 13px 14px; color: var(--ink); background: white; border: 1px solid #cfc1ae; border-radius: 5px; font: inherit; }
+.admin-access-card form .button { width: 100%; border: 0; cursor: pointer; }
+.admin-access-card > a { color: var(--clay-dark); text-decoration: underline; text-underline-offset: 3px; }
 
 .draft-preview { min-height: 100vh; padding-top: 75px; background: var(--paper); }
 .preview-banner { position: fixed; inset: 0 0 auto; z-index: 100; min-height: 75px; padding: 14px 5vw; display: flex; justify-content: space-between; gap: 20px; align-items: center; background: #111b1a; color: white; box-shadow: 0 8px 30px rgba(0,0,0,.18); }

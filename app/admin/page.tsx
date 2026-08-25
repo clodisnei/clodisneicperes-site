@@ -1,5 +1,5 @@
 import { chatGPTSignOutPath, requireChatGPTUser } from "@/app/chatgpt-auth";
-import { isAdministrator } from "@/lib/admin-auth";
+import { isAdministratorUser } from "@/lib/admin-auth";
 import { getSiteContent } from "@/lib/site-content";
 import { getAdminDashboard } from "@/lib/site-metrics";
 import AdminEditor from "./AdminEditor";
@@ -9,13 +9,13 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const user = await requireChatGPTUser("/admin");
 
-  if (!isAdministrator(user.email)) {
+  if (!isAdministratorUser(user)) {
     return (
       <main className="admin-shell">
         <section className="admin-access-card">
           <p className="eyebrow">Acesso reservado</p>
           <h1>Esta conta não tem permissão para editar o site.</h1>
-          <p>Entre com a conta administrativa de Clodisnei Cavalcante Peres.</p>
+          <p>Entre com o acesso administrativo de Clodisnei Cavalcante Peres.</p>
           <a className="button button-dark" href={chatGPTSignOutPath("/admin")}>Trocar de conta</a>
         </section>
       </main>
@@ -30,7 +30,7 @@ export default async function AdminPage() {
         <div>
           <p className="eyebrow">Painel administrativo</p>
           <h1>Conteúdo do site</h1>
-          <p>Edite, pré-visualize e publique as informações. O acesso permanece protegido pela sua conta autorizada.</p>
+          <p>Edite, pré-visualize e publique as informações diretamente no site oficial.</p>
         </div>
         <div className="admin-account">
           <span>{user.displayName}</span>
