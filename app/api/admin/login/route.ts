@@ -17,7 +17,11 @@ export async function POST(request: Request) {
     return Response.redirect(failed, 303);
   }
 
-  const response = Response.redirect(new URL(returnTo, request.url), 303);
-  response.headers.append("set-cookie", adminSessionCookie(await createAdminSessionToken()));
-  return response;
+  return new Response(null, {
+    status: 303,
+    headers: {
+      location: new URL(returnTo, request.url).toString(),
+      "set-cookie": adminSessionCookie(await createAdminSessionToken()),
+    },
+  });
 }

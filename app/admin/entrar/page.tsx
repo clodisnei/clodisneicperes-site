@@ -1,4 +1,5 @@
 import { adminPasswordConfigured, adminReturnPath } from "@/app/chatgpt-auth";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export default async function AdminLoginPage({ searchParams }: Props) {
             <button className="button button-dark" type="submit">Entrar</button>
           </form>
         )}
-        <a href="/">Voltar ao site</a>
+        <Link href="/">Voltar ao site</Link>
       </section>
     </main>
   );
