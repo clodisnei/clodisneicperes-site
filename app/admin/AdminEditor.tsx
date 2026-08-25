@@ -23,6 +23,27 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob>
   });
 }
 
+function verifyImageUrl(url: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const separator = url.includes("?") ? "&" : "?";
+    const timeout = window.setTimeout(() => {
+      image.src = "";
+      reject(new Error("A imagem demorou demais para abrir. A foto anterior foi mantida."));
+    }, 15000);
+    image.onload = () => {
+      window.clearTimeout(timeout);
+      if (image.naturalWidth > 0 && image.naturalHeight > 0) resolve();
+      else reject(new Error("A imagem enviada não pôde ser exibida. A foto anterior foi mantida."));
+    };
+    image.onerror = () => {
+      window.clearTimeout(timeout);
+      reject(new Error("A imagem foi enviada, mas o armazenamento ainda não conseguiu entregá-la. A foto anterior foi mantida."));
+    };
+    image.src = `${url}${separator}preview=${Date.now()}`;
+  });
+}
+
 async function optimizeImage(file: File): Promise<File> {
   if (file.size <= maximumImageUploadSize) return file;
 
@@ -102,8 +123,14 @@ export default function AdminEditor({ initialContent }: Props) {
         if (response.status === 413) throw new Error("O arquivo ainda ficou grande demais para o envio. Escolha uma imagem menor.");
       }
       if (!response.ok || !result.url) throw new Error(result.error || "Não foi possível enviar o arquivo.");
+      if (imageKinds.has(kind)) {
+        setMessage("Verificando a imagem enviada...");
+        await verifyImageUrl(result.url);
+      }
       setContent((current) => ({ ...current, [field]: result.url as string }));
-      setMessage("Imagem pronta. Confira a miniatura e clique em “Salvar e publicar alterações”.");
+      setMessage(imageKinds.has(kind)
+        ? "Imagem pronta e verificada. Confira a miniatura e clique em “Salvar e publicar alterações”."
+        : "Arquivo pronto. Clique em “Salvar e publicar alterações”.");
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Não foi possível enviar o arquivo.");

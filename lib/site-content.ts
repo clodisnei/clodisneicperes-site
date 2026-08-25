@@ -174,6 +174,9 @@ export async function getSiteContent(): Promise<SiteContent> {
 export async function saveSiteContent(content: SiteContent): Promise<void> {
   const db = database();
   if (!db) throw new Error("O banco de conteúdo ainda não está disponível.");
+  await db.prepare(
+    "CREATE TABLE IF NOT EXISTS site_content (id TEXT PRIMARY KEY NOT NULL, content TEXT NOT NULL, updated_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL)",
+  ).run();
   await db
     .prepare("INSERT INTO site_content (id, content, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET content = excluded.content, updated_at = CURRENT_TIMESTAMP")
     .bind("main", JSON.stringify(content))
