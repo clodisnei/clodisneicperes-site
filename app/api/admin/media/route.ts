@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     let extension = "";
-    let maximumSize = 8 * 1024 * 1024;
+    let maximumSize = 1024 * 1024;
     if (kind === "video") {
       extension = videoTypes[file.type];
       maximumSize = 90 * 1024 * 1024;
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       if (!extension) return Response.json({ error: "Use uma imagem JPG, PNG ou WebP." }, { status: 400 });
     }
     if (file.size > maximumSize) {
-      const limit = kind === "video" ? "90 MB" : kind === "captions" ? "1 MB" : kind === "sample" || kind === "pressKit" ? "25 MB" : "8 MB";
+      const limit = kind === "video" ? "90 MB" : kind === "captions" ? "1 MB" : kind === "sample" || kind === "pressKit" ? "25 MB" : "1 MB";
       return Response.json({ error: `O arquivo deve ter no máximo ${limit}.` }, { status: 400 });
     }
 

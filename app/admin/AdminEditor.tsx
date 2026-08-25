@@ -9,6 +9,60 @@ const joinParagraphs = (items: string[]) => items.join("\n\n");
 const joinLines = (items: string[]) => items.join("\n");
 const joinBenefits = (items: SiteContent["benefits"]) => items.map((item) => `${item.title} | ${item.text}`).join("\n");
 const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const imageKinds = new Set(["cover", "author", "secondary", "journeyCover", "videoPoster"]);
+const maximumImageUploadSize = 900 * 1024;
+const maximumImageDimension = 2000;
+
+function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error("Não foi possível preparar esta imagem.")),
+      "image/webp",
+      quality,
+    );
+  });
+}
+
+async function optimizeImage(file: File): Promise<File> {
+  if (file.size <= maximumImageUploadSize) return file;
+
+  const bitmap = await createImageBitmap(file);
+  try {
+    const initialScale = Math.min(1, maximumImageDimension / Math.max(bitmap.width, bitmap.height));
+    let width = Math.max(1, Math.round(bitmap.width * initialScale));
+    let height = Math.max(1, Math.round(bitmap.height * initialScale));
+    let bestBlob: Blob | null = null;
+
+    for (let resizeAttempt = 0; resizeAttempt < 5; resizeAttempt += 1) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Seu navegador não conseguiu preparar esta imagem.");
+      context.drawImage(bitmap, 0, 0, width, height);
+
+      for (const quality of [0.86, 0.74, 0.62, 0.5]) {
+        const blob = await canvasToBlob(canvas, quality);
+        if (!bestBlob || blob.size < bestBlob.size) bestBlob = blob;
+        if (blob.size <= maximumImageUploadSize) {
+          const baseName = file.name.replace(/\.[^.]+$/, "") || "imagem";
+          return new File([blob], `${baseName}.webp`, { type: "image/webp", lastModified: Date.now() });
+        }
+      }
+
+      width = Math.max(1, Math.round(width * 0.78));
+      height = Math.max(1, Math.round(height * 0.78));
+    }
+
+    if (bestBlob && bestBlob.size <= maximumImageUploadSize) {
+      const baseName = file.name.replace(/\.[^.]+$/, "") || "imagem";
+      return new File([bestBlob], `${baseName}.webp`, { type: "image/webp", lastModified: Date.now() });
+    }
+    throw new Error("A imagem continuou muito grande depois da otimização. Escolha outra foto.");
+  } finally {
+    bitmap.close();
+  }
+}
 
 export default function AdminEditor({ initialContent }: Props) {
   const [content, setContent] = useState(initialContent);
@@ -33,16 +87,23 @@ export default function AdminEditor({ initialContent }: Props) {
     if (!file) return;
     setUploading(kind);
     setStatus("idle");
-    setMessage("");
-    const formData = new FormData();
-    formData.set("kind", kind);
-    formData.set("file", file);
+    setMessage(imageKinds.has(kind) && file.size > maximumImageUploadSize ? "Preparando e reduzindo a imagem..." : "Enviando arquivo...");
     try {
+      const uploadFile = imageKinds.has(kind) ? await optimizeImage(file) : file;
+      const formData = new FormData();
+      formData.set("kind", kind);
+      formData.set("file", uploadFile);
       const response = await fetch("/api/admin/media", { method: "POST", body: formData });
-      const result = (await response.json()) as { url?: string; error?: string };
+      const responseText = await response.text();
+      let result: { url?: string; error?: string } = {};
+      try {
+        result = JSON.parse(responseText) as { url?: string; error?: string };
+      } catch {
+        if (response.status === 413) throw new Error("O arquivo ainda ficou grande demais para o envio. Escolha uma imagem menor.");
+      }
       if (!response.ok || !result.url) throw new Error(result.error || "Não foi possível enviar o arquivo.");
       setContent((current) => ({ ...current, [field]: result.url as string }));
-      setMessage("Arquivo enviado. Clique em “Salvar e publicar alterações” para aplicá-lo ao site.");
+      setMessage("Imagem pronta. Confira a miniatura e clique em “Salvar e publicar alterações”.");
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Não foi possível enviar o arquivo.");
@@ -231,14 +292,14 @@ export default function AdminEditor({ initialContent }: Props) {
         <legend>Sobre o autor</legend>
         <div className="media-field">
           <img src={content.authorImageUrl} alt="Foto atual do autor" />
-          <label>Foto do autor <small>JPG, PNG ou WebP, até 8 MB.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("author", "authorImageUrl", e.target.files?.[0])} /></label>
+          <label>Foto do autor <small>JPG, PNG ou WebP. A imagem será otimizada automaticamente.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("author", "authorImageUrl", e.target.files?.[0])} /></label>
           {uploading === "author" && <span>Enviando foto...</span>}
         </div>
         <label>Título da seção<textarea rows={3} value={content.authorTitle} onChange={(e) => update("authorTitle", e.target.value)} /></label>
         <label>História do autor <small>Separe os parágrafos deixando uma linha em branco.</small><textarea rows={13} value={authorParagraphs} onChange={(e) => setAuthorParagraphs(e.target.value)} /></label>
         <div className="media-field">
           <img src={content.secondaryImageUrl || content.authorImageUrl} alt="Segunda foto atual do autor" />
-          <label>Segunda foto do autor <small>Usada no convite final. Se não enviar, a foto principal será mantida.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("secondary", "secondaryImageUrl", e.target.files?.[0])} /></label>
+          <label>Segunda foto do autor <small>Usada no convite final e otimizada automaticamente antes do envio.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("secondary", "secondaryImageUrl", e.target.files?.[0])} /></label>
           {uploading === "secondary" && <span>Enviando segunda foto...</span>}
         </div>
       </fieldset>
@@ -262,7 +323,7 @@ export default function AdminEditor({ initialContent }: Props) {
           <div className="video-admin-files">
             <label>Arquivo do vídeo <small>MP4, WebM, MOV ou M4V, até 90 MB.</small><input type="file" accept="video/mp4,video/webm,video/quicktime,video/x-m4v" disabled={uploading !== null} onChange={(e) => uploadMedia("video", "videoUrl", e.target.files?.[0])} /></label>
             {uploading === "video" && <span>Enviando vídeo... Aguarde sem fechar a página.</span>}
-            <label>Imagem de abertura <small>Opcional. Use uma imagem horizontal JPG, PNG ou WebP.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("videoPoster", "videoPosterUrl", e.target.files?.[0])} /></label>
+            <label>Imagem de abertura <small>Opcional. Use uma imagem horizontal JPG, PNG ou WebP; ela será otimizada automaticamente.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("videoPoster", "videoPosterUrl", e.target.files?.[0])} /></label>
             {uploading === "videoPoster" && <span>Enviando imagem de abertura...</span>}
             <label>Legendas acessíveis <small>Opcional. Arquivo VTT em português.</small><input type="file" accept=".vtt,text/vtt" disabled={uploading !== null} onChange={(e) => uploadMedia("captions", "videoCaptionsUrl", e.target.files?.[0])} /></label>
             {uploading === "captions" && <span>Enviando legendas...</span>}
@@ -288,7 +349,7 @@ export default function AdminEditor({ initialContent }: Props) {
         <legend>O livro</legend>
         <div className="media-field cover-media-field">
           <img src={content.coverImageUrl} alt="Capa atual do livro" />
-          <label>Capa do livro <small>Use a capa frontal em JPG, PNG ou WebP, até 8 MB.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("cover", "coverImageUrl", e.target.files?.[0])} /></label>
+          <label>Capa do livro <small>Use a capa frontal em JPG, PNG ou WebP; ela será otimizada automaticamente.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("cover", "coverImageUrl", e.target.files?.[0])} /></label>
           {uploading === "cover" && <span>Enviando capa...</span>}
         </div>
         <label>Título da seção<textarea rows={3} value={content.bookTitle} onChange={(e) => update("bookTitle", e.target.value)} /></label>
@@ -401,7 +462,7 @@ export default function AdminEditor({ initialContent }: Props) {
         <legend>Jornada em construção</legend>
         <div className="media-field cover-media-field">
           <img src={content.journeyCoverUrl} alt="Capa atual da Jornada" />
-          <label>Capa da Jornada <small>Use a capa frontal em JPG, PNG ou WebP, até 8 MB.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("journeyCover", "journeyCoverUrl", e.target.files?.[0])} /></label>
+          <label>Capa da Jornada <small>Use a capa frontal em JPG, PNG ou WebP; ela será otimizada automaticamente.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("journeyCover", "journeyCoverUrl", e.target.files?.[0])} /></label>
           {uploading === "journeyCover" && <span>Enviando capa da Jornada...</span>}
         </div>
         <label>Status<input value={content.journeyStatus} onChange={(e) => update("journeyStatus", e.target.value)} /></label>
@@ -497,8 +558,8 @@ export default function AdminEditor({ initialContent }: Props) {
         <button className="admin-secondary-action" type="button" onClick={downloadBackup}>Baixar cópia</button>
         <label className="admin-secondary-action restore-action">Restaurar cópia<input type="file" accept="application/json,.json" onChange={(event) => restoreBackup(event.target.files?.[0])} /></label>
         <button className="admin-secondary-action" type="button" onClick={previewChanges}>Pré-visualizar</button>
-        <button className="button button-warm" disabled={status === "saving"} type="submit">
-          {status === "saving" ? "Salvando..." : "Salvar e publicar alterações"}
+        <button className="button button-warm" disabled={status === "saving" || uploading !== null} type="submit">
+          {uploading !== null ? "Aguarde o envio..." : status === "saving" ? "Salvando..." : "Salvar e publicar alterações"}
         </button>
       </div>
     </form>
