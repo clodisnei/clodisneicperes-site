@@ -43,6 +43,16 @@ function database(): Database | null {
   return (env as unknown as { DB?: Database }).DB ?? null;
 }
 
+async function ensureNewsletterTable(db: Database): Promise<void> {
+  await db.prepare(`
+    CREATE TABLE IF NOT EXISTS site_newsletter_subscribers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )
+  `).run();
+}
+
 export async function recordSiteEvent(eventType: string, path: string, referrerHost: string): Promise<void> {
   const db = database();
   if (!db) return;
@@ -65,6 +75,7 @@ export async function joinJourneyWaitlist(email: string): Promise<void> {
 export async function joinNewsletter(email: string): Promise<void> {
   const db = database();
   if (!db) throw new Error("O cadastro de novidades ainda não está disponível.");
+  await ensureNewsletterTable(db);
   await db
     .prepare("INSERT INTO site_newsletter_subscribers (email) VALUES (?) ON CONFLICT(email) DO NOTHING")
     .bind(email)
@@ -94,6 +105,7 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
   if (!db) return emptyDashboard;
 
   try {
+    await ensureNewsletterTable(db);
     const [eventRows, waitlistRow, newsletterRow, recentWaitlist, recentNewsletter] = await Promise.all([
       db.prepare(`
         SELECT
@@ -147,6 +159,7 @@ export async function listNewsletter(): Promise<WaitlistEntry[]> {
   const db = database();
   if (!db) return [];
   try {
+    await ensureNewsletterTable(db);
     const result = await db
       .prepare("SELECT email, created_at FROM site_newsletter_subscribers ORDER BY created_at DESC")
       .all<WaitlistEntry>();
