@@ -6,7 +6,7 @@ import NewsletterForm from "@/app/components/NewsletterForm";
 import MobileMenu from "@/app/components/MobileMenu";
 import { PageAnalytics, TrackedLink } from "@/app/components/SiteAnalytics";
 
-// Página inicial oficial: o autor é apresentado antes de suas obras e projetos.
+// Página inicial oficial: o autor é apresentado antes de suas obras e projetos, em uma leitura acessível e responsiva.
 
 export const dynamic = "force-dynamic";
 
