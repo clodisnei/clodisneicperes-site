@@ -343,11 +343,6 @@ export default function AdminEditor({ initialContent }: Props) {
         <label>Formações concluídas <small>Uma formação por linha.</small><textarea rows={5} value={completedTraining} onChange={(e) => setCompletedTraining(e.target.value)} /></label>
         <label>Graduações em andamento <small>Uma informação por linha.</small><textarea rows={5} value={degreesInProgress} onChange={(e) => setDegreesInProgress(e.target.value)} /></label>
         <label>Estudos contínuos <small>Uma área por linha.</small><textarea rows={5} value={ongoingStudies} onChange={(e) => setOngoingStudies(e.target.value)} /></label>
-        <div className="media-field">
-          <img src={content.secondaryImageUrl || content.authorImageUrl} alt="Segunda foto atual do autor" />
-          <label>Segunda foto do autor <small>Usada na seção da trajetória e otimizada automaticamente antes do envio.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("secondary", "secondaryImageUrl", e.target.files?.[0])} /></label>
-          {uploading === "secondary" && <span>Enviando segunda foto...</span>}
-        </div>
       </fieldset>
 
       <fieldset id="admin-video">
