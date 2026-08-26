@@ -18,7 +18,7 @@ const SIGN_IN_PATH = "/signin-with-chatgpt";
 const SIGN_OUT_PATH = "/signout-with-chatgpt";
 const CALLBACK_PATH = "/callback";
 export const ADMIN_SESSION_COOKIE = "clodisnei_admin_session";
-const ADMIN_SESSION_SECONDS = 60 * 60 * 24 * 30;
+const ADMIN_SESSION_SECONDS = 60 * 60 * 12;
 
 type AdminRuntime = {
   ADMIN_EMAIL?: string;
