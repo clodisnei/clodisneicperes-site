@@ -103,7 +103,7 @@ export async function createAdminSessionToken(): Promise<string> {
   const secret = runtime().ADMIN_PASSWORD?.trim();
   if (!secret) throw new Error("A senha administrativa ainda não foi configurada.");
   const expiresAt = Math.floor(Date.now() / 1000) + ADMIN_SESSION_SECONDS;
-  const payload = `v1.${expiresAt}`;
+  const payload = `v2.${expiresAt}`;
   return `${payload}.${await signValue(payload, secret)}`;
 }
 
@@ -127,7 +127,7 @@ async function verifyAdminSession(cookieHeader: string | null): Promise<boolean>
 
   const [version, expiresText, signature] = token.split(".");
   const expiresAt = Number(expiresText);
-  if (version !== "v1" || !Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000) || !signature) return false;
+  if (version !== "v2" || !Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000) || !signature) return false;
   const expected = await signValue(`${version}.${expiresText}`, secret);
   return constantTimeEqual(expected, signature);
 }
