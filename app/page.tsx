@@ -165,17 +165,6 @@ export default async function Home() {
       <section className="section-pad author-section" id="autor">
         <div className="content-grid author-grid">
           <div className="author-profile">
-            <figure className="author-photo-frame">
-              <img
-                src={content.secondaryImageUrl || content.authorImageUrl}
-                alt="Retrato do autor Clodisnei Cavalcante Peres"
-                width="900"
-                height="1350"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>Clodisnei Cavalcante Peres · autor</figcaption>
-            </figure>
             <div className="section-heading">
               <p className="eyebrow">Minha trajetória</p>
               <h2>{content.authorTitle}</h2>
