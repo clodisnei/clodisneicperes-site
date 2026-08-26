@@ -87,6 +87,10 @@ async function optimizeImage(file: File): Promise<File> {
 
 export default function AdminEditor({ initialContent }: Props) {
   const [content, setContent] = useState(initialContent);
+  const [authorBiography, setAuthorBiography] = useState(joinParagraphs(initialContent.authorBiography));
+  const [completedTraining, setCompletedTraining] = useState(joinLines(initialContent.completedTraining));
+  const [degreesInProgress, setDegreesInProgress] = useState(joinLines(initialContent.degreesInProgress));
+  const [ongoingStudies, setOngoingStudies] = useState(joinLines(initialContent.ongoingStudies));
   const [authorParagraphs, setAuthorParagraphs] = useState(joinParagraphs(initialContent.authorParagraphs));
   const [bookTopics, setBookTopics] = useState(joinLines(initialContent.bookTopics));
   const [audience, setAudience] = useState(joinLines(initialContent.audience));
@@ -222,6 +226,10 @@ export default function AdminEditor({ initialContent }: Props) {
   function buildPayload(): SiteContent {
     return {
       ...content,
+      authorBiography: authorBiography.split(/\n\s*\n/).map((item) => item.trim()).filter(Boolean),
+      completedTraining: completedTraining.split("\n").map((item) => item.trim()).filter(Boolean),
+      degreesInProgress: degreesInProgress.split("\n").map((item) => item.trim()).filter(Boolean),
+      ongoingStudies: ongoingStudies.split("\n").map((item) => item.trim()).filter(Boolean),
       authorParagraphs: authorParagraphs.split(/\n\s*\n/).map((item) => item.trim()).filter(Boolean),
       bookTopics: bookTopics.split("\n").map((item) => item.trim()).filter(Boolean),
       audience: audience.split("\n").map((item) => item.trim()).filter(Boolean),
@@ -255,6 +263,10 @@ export default function AdminEditor({ initialContent }: Props) {
       const restored = {
         ...initialContent,
         ...parsed,
+        authorBiography: parsed.authorBiography ?? initialContent.authorBiography,
+        completedTraining: parsed.completedTraining ?? initialContent.completedTraining,
+        degreesInProgress: parsed.degreesInProgress ?? initialContent.degreesInProgress,
+        ongoingStudies: parsed.ongoingStudies ?? initialContent.ongoingStudies,
         authorParagraphs: parsed.authorParagraphs ?? initialContent.authorParagraphs,
         bookTopics: parsed.bookTopics ?? initialContent.bookTopics,
         audience: parsed.audience ?? initialContent.audience,
@@ -266,6 +278,10 @@ export default function AdminEditor({ initialContent }: Props) {
         bookLinks: parsed.bookLinks ?? initialContent.bookLinks,
       } as SiteContent;
       setContent(restored);
+      setAuthorBiography(joinParagraphs(restored.authorBiography));
+      setCompletedTraining(joinLines(restored.completedTraining));
+      setDegreesInProgress(joinLines(restored.degreesInProgress));
+      setOngoingStudies(joinLines(restored.ongoingStudies));
       setAuthorParagraphs(joinParagraphs(restored.authorParagraphs));
       setBookTopics(joinLines(restored.bookTopics));
       setAudience(joinLines(restored.audience));
@@ -308,10 +324,10 @@ export default function AdminEditor({ initialContent }: Props) {
         <a href="#admin-inicio">Início</a><a href="#admin-autor">Autor</a><a href="#admin-livro">Livro</a><a href="#admin-conteudos">Conteúdos</a><a href="#admin-projetos">Projetos</a><a href="#admin-canais">Canais</a><a href="#admin-configuracoes">Configurações</a>
       </nav>
       <fieldset id="admin-inicio">
-        <legend>Apresentação principal</legend>
-        <label>Chamada curta<input value={content.heroEyebrow} onChange={(e) => update("heroEyebrow", e.target.value)} /></label>
-        <label>Título principal<textarea rows={3} value={content.heroTitle} onChange={(e) => update("heroTitle", e.target.value)} /></label>
-        <label>Texto de abertura<textarea rows={4} value={content.heroIntro} onChange={(e) => update("heroIntro", e.target.value)} /></label>
+        <legend>Apresentação principal do autor</legend>
+        <label>Chamada curta<input value={content.presentationEyebrow} onChange={(e) => update("presentationEyebrow", e.target.value)} /></label>
+        <label>Título principal<textarea rows={3} value={content.presentationTitle} onChange={(e) => update("presentationTitle", e.target.value)} /></label>
+        <label>Texto de abertura<textarea rows={4} value={content.presentationIntro} onChange={(e) => update("presentationIntro", e.target.value)} /></label>
         <label>Frase central<textarea rows={3} value={content.centralQuote} onChange={(e) => update("centralQuote", e.target.value)} /></label>
       </fieldset>
 
@@ -323,10 +339,13 @@ export default function AdminEditor({ initialContent }: Props) {
           {uploading === "author" && <span>Enviando foto...</span>}
         </div>
         <label>Título da seção<textarea rows={3} value={content.authorTitle} onChange={(e) => update("authorTitle", e.target.value)} /></label>
-        <label>História do autor <small>Separe os parágrafos deixando uma linha em branco.</small><textarea rows={13} value={authorParagraphs} onChange={(e) => setAuthorParagraphs(e.target.value)} /></label>
+        <label>Biografia oficial <small>Separe os parágrafos deixando uma linha em branco. O texto inicial foi fundamentado no livro.</small><textarea rows={15} value={authorBiography} onChange={(e) => setAuthorBiography(e.target.value)} /></label>
+        <label>Formações concluídas <small>Uma formação por linha.</small><textarea rows={5} value={completedTraining} onChange={(e) => setCompletedTraining(e.target.value)} /></label>
+        <label>Graduações em andamento <small>Uma informação por linha.</small><textarea rows={5} value={degreesInProgress} onChange={(e) => setDegreesInProgress(e.target.value)} /></label>
+        <label>Estudos contínuos <small>Uma área por linha.</small><textarea rows={5} value={ongoingStudies} onChange={(e) => setOngoingStudies(e.target.value)} /></label>
         <div className="media-field">
           <img src={content.secondaryImageUrl || content.authorImageUrl} alt="Segunda foto atual do autor" />
-          <label>Segunda foto do autor <small>Usada no convite final e otimizada automaticamente antes do envio.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("secondary", "secondaryImageUrl", e.target.files?.[0])} /></label>
+          <label>Segunda foto do autor <small>Usada na seção da trajetória e otimizada automaticamente antes do envio.</small><input type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading !== null} onChange={(e) => uploadMedia("secondary", "secondaryImageUrl", e.target.files?.[0])} /></label>
           {uploading === "secondary" && <span>Enviando segunda foto...</span>}
         </div>
       </fieldset>

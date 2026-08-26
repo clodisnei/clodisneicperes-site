@@ -33,12 +33,12 @@ export default function DraftPreview({ fallback }: { fallback: SiteContent }) {
         <button type="button" onClick={() => window.close()}>Fechar</button>
       </div>
       <section className="preview-hero">
-        <div><p className="eyebrow">{content.heroEyebrow}</p><h1>{content.heroTitle}</h1><p>{content.heroIntro}</p></div>
-        <img src={content.coverImageUrl} alt="Capa do livro" />
+        <div><p className="eyebrow">{content.presentationEyebrow}</p><h1>{content.presentationTitle}</h1><p>{content.presentationIntro}</p></div>
+        <img src={content.authorImageUrl} alt="Foto principal do autor" />
       </section>
       <section className="preview-author">
-        <img src={content.authorImageUrl} alt="Foto do autor" />
-        <div><p className="eyebrow">Sobre o autor</p><h2>{content.authorTitle}</h2>{content.authorParagraphs.slice(0, 2).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
+        <img src={content.secondaryImageUrl || content.authorImageUrl} alt="Segunda foto do autor" />
+        <div><p className="eyebrow">Trajetória</p><h2>{content.authorTitle}</h2>{content.authorBiography.slice(0, 3).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
       </section>
       <section className="preview-dark">
         <p className="eyebrow light">O livro</p><h2>{content.bookTitle}</h2><p>{content.bookSummary}</p>

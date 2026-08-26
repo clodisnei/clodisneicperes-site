@@ -8,24 +8,36 @@ import { PageAnalytics, TrackedLink } from "@/app/components/SiteAnalytics";
 
 export const dynamic = "force-dynamic";
 
-const pathway = [
+const themes = [
   {
     number: "01",
-    eyebrow: "Reconhecer",
-    title: "Uma história real",
-    text: "O livro acolhe quem teve a vida interrompida por perdas, limitações ou mudanças que alteraram a forma de enxergar a si mesmo.",
+    title: "Identidade além do que fazemos",
+    text: "A pergunta sobre quem permanecemos sendo quando capacidades, rotinas e projetos já não podem continuar da mesma forma.",
   },
   {
     number: "02",
-    eyebrow: "Começar",
-    title: "Um plano gratuito",
-    text: "O Plano de 30 Dias transforma a leitura em perguntas, pequenas ações e reflexões que podem ser feitas no próprio ritmo.",
+    title: "Perdas, luto e continuidade",
+    text: "Uma escrita que reconhece a dor sem transformar a experiência em superação perfeita ou resposta pronta.",
   },
   {
     number: "03",
-    eyebrow: "Aprofundar",
-    title: "Uma jornada em construção",
-    text: "A Jornada amplia o caminho de autoconsciência e integração, com responsabilidade e sem antecipar um projeto que ainda está sendo desenvolvido.",
+    title: "Fé, presença e pertencimento",
+    text: "A espiritualidade, a família e as pessoas que permanecem como parte concreta dos processos de reconstrução.",
+  },
+  {
+    number: "04",
+    title: "Mente, linguagem e hábitos",
+    text: "Estudos e ferramentas que ajudam a observar pensamentos, automatismos, escolhas e formas possíveis de agir.",
+  },
+  {
+    number: "05",
+    title: "Acessibilidade e autonomia possível",
+    text: "Mudar ferramentas, aceitar apoio e continuar participando da própria vida sem negar os limites existentes.",
+  },
+  {
+    number: "06",
+    title: "Recomeço como prática",
+    text: "Recomeçar não como retorno à vida anterior, mas como participação consciente na construção de outra forma de viver.",
   },
 ];
 
@@ -33,7 +45,6 @@ export default async function Home() {
   const content = await getSiteContent();
   const publishedBookLinks = content.bookLinks.filter((item) => item.published && item.label.trim() && item.url.trim());
   const publishedSocialLinks = content.socialLinks.filter((item) => item.published && item.label.trim() && item.url.trim());
-  const publishedFaqs = content.faqs.filter((item) => item.published && item.question.trim() && item.answer.trim());
   const hasContact = Boolean(content.contactEmail || content.pressKitUrl || publishedSocialLinks.length);
   const hasVideo = content.videoPublished && Boolean(content.videoUrl);
   const publishedTestimonials = content.testimonials.filter((item) => item.published && item.name.trim() && item.text.trim());
@@ -52,6 +63,7 @@ export default async function Home() {
       sameAs: publishedSocialLinks.map((item) => item.url),
       birthPlace: { "@type": "Place", name: "Paranavaí, Paraná, Brasil" },
       jobTitle: "Autor",
+      description: content.presentationIntro,
       knowsAbout: ["Hipnose clínica", "Programação Neurolinguística", "Neurociência", "Autoconhecimento", "Desenvolvimento pessoal"],
     },
     {
@@ -65,15 +77,6 @@ export default async function Home() {
       image: absoluteImage(content.coverImageUrl),
       author: { "@type": "Person", name: "Clodisnei Cavalcante Peres" },
       description: content.bookSummary,
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: publishedFaqs.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: { "@type": "Answer", text: item.answer },
-      })),
     },
   ];
   if (hasVideo) {
@@ -103,16 +106,15 @@ export default async function Home() {
             </span>
           </a>
           <div className="nav-links">
-            <a href="#autor">O autor</a>
+            <a href="#autor">Trajetória</a>
             {hasVideo && <a href="#video">Minha história</a>}
+            <a href="#projetos">Obras e projetos</a>
             <a href="#livro">O livro</a>
-            <a href="#plano">Plano gratuito</a>
             {publishedReflections.length > 0 && <a href="#reflexoes">Reflexões</a>}
-            <a href="#jornada">A Jornada</a>
             {hasContact && <a href="#contato">Contato</a>}
           </div>
-          <a className="button button-small button-dark nav-primary-action" href="#livro">
-            Conhecer o livro
+          <a className="button button-small button-dark nav-primary-action" href="#autor">
+            Conheça minha trajetória
           </a>
           <MobileMenu hasVideo={hasVideo} hasReflections={publishedReflections.length > 0} hasContact={hasContact} />
         </nav>
@@ -123,40 +125,92 @@ export default async function Home() {
         <div className="hero-glow hero-glow-two" />
         <div className="content-grid hero-grid">
           <div className="hero-copy">
-            <p className="eyebrow">{content.heroEyebrow}</p>
-            <h1>{content.heroTitle}</h1>
-            <p className="hero-lead">{content.heroIntro}</p>
+            <p className="eyebrow">{content.presentationEyebrow}</p>
+            <h1>{content.presentationTitle}</h1>
+            <p className="hero-lead">{content.presentationIntro}</p>
             <div className="button-row">
-              <a className="button button-warm" href="#livro">
-                Descobrir o livro
+              <a className="button button-warm" href="#autor">
+                Conheça minha trajetória
               </a>
-              <TrackedLink className="button button-outline" href={content.planUrl} target="_blank" rel="noreferrer" eventName="plan_click">
-                Começar gratuitamente
-              </TrackedLink>
+              <a className="button button-outline" href="#projetos">Veja minhas obras e projetos</a>
             </div>
-            <div className="trust-line" aria-label="Informações principais">
-              <span>História real</span>
-              <span>Reflexões acessíveis</span>
-              <span>Plano gratuito</span>
+            <div className="hero-facts" aria-label="Informações sobre o autor">
+              <span><strong>Autor</strong><small>de O Que Restou de Mim</small></span>
+              <span><strong>Paranavaí</strong><small>Paraná · Brasil</small></span>
+              <span><strong>Escrita acessível</strong><small>voz, ampliação e tecnologia</small></span>
             </div>
           </div>
 
-          <figure className="book-stage" aria-label="Capa oficial do livro O Que Restou de Mim">
-            <div className="book-shadow" />
+          <figure className="author-hero-stage" aria-label="Retrato de Clodisnei Cavalcante Peres">
+            <div className="author-hero-accent" aria-hidden="true" />
             <img
-              className="official-cover"
-              src={content.coverImageUrl}
-              alt="Capa oficial do livro O Que Restou de Mim, de Clodisnei C. Peres"
-              width="1000"
-              height="1600"
+              className="author-hero-portrait"
+              src={content.authorImageUrl}
+              alt="Retrato do autor Clodisnei Cavalcante Peres"
+              width="900"
+              height="1350"
               fetchPriority="high"
               decoding="async"
             />
-            <figcaption className="book-caption">
-              <span>Livro autobiográfico</span>
-              <strong>1ª edição · 2026</strong>
+            <figcaption className="author-hero-caption">
+              <span>Clodisnei Cavalcante Peres</span>
+              <strong>Autor e criador</strong>
             </figcaption>
           </figure>
+        </div>
+      </section>
+
+      <section className="section-pad author-section" id="autor">
+        <div className="content-grid author-grid">
+          <div className="author-profile">
+            <figure className="author-photo-frame">
+              <img
+                src={content.secondaryImageUrl || content.authorImageUrl}
+                alt="Retrato do autor Clodisnei Cavalcante Peres"
+                width="900"
+                height="1350"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>Clodisnei Cavalcante Peres · autor</figcaption>
+            </figure>
+            <div className="section-heading">
+              <p className="eyebrow">Minha trajetória</p>
+              <h2>{content.authorTitle}</h2>
+              <div className="author-signature">Clodisnei C. Peres</div>
+            </div>
+          </div>
+          <div className="author-story">
+            {content.authorBiography.slice(0, 3).map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            {content.authorBiography.length > 3 && (
+              <details className="author-more">
+                <summary>Continuar lendo minha trajetória <span>+</span></summary>
+                <div>
+                  {content.authorBiography.slice(3).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                </div>
+              </details>
+            )}
+            <div className="identity-question">
+              <p>A pergunta que atravessa a obra</p>
+              <strong>“Se eu não posso mais fazer tudo o que fazia, quem sou eu agora?”</strong>
+            </div>
+            <div className="formation-grid" aria-label="Formação e estudos de Clodisnei Cavalcante Peres">
+              <div className="formation-card">
+                <p>Formações concluídas</p>
+                <ul>{content.completedTraining.map((item) => <li key={item}>{item}</li>)}</ul>
+              </div>
+              <div className="formation-card">
+                <p>Graduações em andamento</p>
+                <ul>{content.degreesInProgress.map((item) => <li key={item}>{item}</li>)}</ul>
+              </div>
+              <div className="formation-card">
+                <p>Estudos contínuos</p>
+                <ul>{content.ongoingStudies.map((item) => <li key={item}>{item}</li>)}</ul>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -168,49 +222,24 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section-pad author-section" id="autor">
-        <div className="content-grid author-grid">
-          <div className="author-profile">
-            <figure className="author-photo-frame">
-              <img
-                src={content.authorImageUrl}
-                alt="Retrato do autor Clodisnei Cavalcante Peres"
-                width="900"
-                height="1350"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>Clodisnei Cavalcante Peres · autor</figcaption>
-            </figure>
-            <div className="section-heading">
-              <p className="eyebrow">Sobre o autor</p>
-              <h2>{content.authorTitle}</h2>
-              <div className="author-signature">Clodisnei C. Peres</div>
-            </div>
+      <section className="section-pad themes-section" id="temas">
+        <div className="content-grid themes-heading">
+          <div className="section-heading">
+            <p className="eyebrow">Temas que atravessam meu trabalho</p>
+            <h2>Uma escrita construída entre experiência, estudo e vida cotidiana.</h2>
           </div>
-          <div className="author-story">
-            {content.authorParagraphs.slice(0, 2).map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-            {content.authorParagraphs.length > 2 && (
-              <details className="author-more">
-                <summary>Continuar lendo sobre o autor <span>+</span></summary>
-                <div>
-                  {content.authorParagraphs.slice(2).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-                </div>
-              </details>
-            )}
-            <div className="identity-question">
-              <p>A pergunta que atravessa a obra</p>
-              <strong>“Se eu não posso mais fazer tudo o que fazia, quem sou eu agora?”</strong>
-            </div>
-            <div className="author-knowledge">
-              <p>Formação e áreas de estudo</p>
-              <div>
-                <span>Hipnose clínica</span><span>PNL</span><span>Massoterapia</span><span>Filosofia</span><span>Economia</span><span>Neurociência</span>
-              </div>
-            </div>
-          </div>
+          <p>
+            Estes temas nasceram da trajetória narrada em O Que Restou de Mim e continuam presentes nos projetos que desenvolvo.
+          </p>
+        </div>
+        <div className="theme-grid">
+          {themes.map((item) => (
+            <article className="theme-card" key={item.number}>
+              <span>{item.number}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -245,20 +274,54 @@ export default async function Home() {
         </section>
       )}
 
+      <section className="section-pad projects-overview" id="projetos">
+        <div className="section-heading centered-heading compact-heading">
+          <p className="eyebrow light">Obras e projetos</p>
+          <h2>Uma trajetória que se transforma em escrita, reflexão e caminhos de continuidade.</h2>
+        </div>
+        <div className="project-overview-grid">
+          <article className="project-overview-card">
+            <span className="project-index">01</span>
+            <p className="eyebrow light">Livro autobiográfico</p>
+            <h3>O Que Restou de Mim</h3>
+            <p>O primeiro livro publicado oficialmente por Clodisnei, escrito a partir da perda visual, do luto e da reconstrução da própria identidade.</p>
+            <a href="#livro">Conhecer a obra <span aria-hidden="true">→</span></a>
+          </article>
+          <article className="project-overview-card">
+            <span className="project-index">02</span>
+            <p className="eyebrow light">Experiência gratuita</p>
+            <h3>Plano de 30 Dias para seu Recomeço</h3>
+            <p>Perguntas, reflexões e pequenas práticas que podem ser realizadas no próprio ritmo, por leitores ou não leitores do livro.</p>
+            <a href="#plano">Conhecer o plano <span aria-hidden="true">→</span></a>
+          </article>
+          <article className="project-overview-card">
+            <span className="project-index">03</span>
+            <p className="eyebrow light">Em desenvolvimento</p>
+            <h3>Jornada de Ampliação e Integração da Consciência</h3>
+            <p>Um projeto de aprofundamento em autoconsciência, observação dos automatismos e integração à vida cotidiana.</p>
+            <a href="#jornada">Acompanhar o projeto <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+      </section>
+
       <section className="section-pad book-section" id="livro">
-        <div className="content-grid book-intro-grid">
-          <div className="section-heading">
-            <p className="eyebrow light">Por dentro da obra</p>
-            <h2>{content.bookTitle}</h2>
-          </div>
-          <div>
+        <div className="content-grid book-feature-grid">
+          <figure className="book-feature-cover">
+            <img src={content.coverImageUrl} alt="Capa oficial do livro O Que Restou de Mim, de Clodisnei C. Peres" width="1000" height="1600" loading="lazy" decoding="async" />
+            <figcaption><span>Livro autobiográfico</span><strong>1ª edição · 2026</strong></figcaption>
+          </figure>
+          <div className="book-feature-copy">
+            <div className="section-heading">
+              <p className="eyebrow light">Meu primeiro livro publicado</p>
+              <h2>{content.bookTitle}</h2>
+            </div>
             <p className="section-lead light-text">{content.bookSummary}</p>
             <p className="book-promise">{content.bookPromise}</p>
           </div>
         </div>
 
         <div className="topic-grid">
-          {content.bookTopics.map((topic, index) => (
+          {content.bookTopics.slice(0, 6).map((topic, index) => (
             <article className="topic-card" key={topic}>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <h3>{topic}</h3>
@@ -306,59 +369,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      <section className="section-pad benefits-section" id="beneficios">
-        <div className="section-heading centered-heading">
-          <p className="eyebrow">O que a leitura pode despertar</p>
-          <h2>Benefícios possíveis para quem está vivendo um tempo de mudança</h2>
-          <p>
-            Cada experiência é única. O livro não promete fórmulas: ele oferece companhia, linguagem e perguntas para um recomeço mais consciente.
-          </p>
-        </div>
-        <div className="benefit-grid">
-          {content.benefits.map((benefit, index) => (
-            <article className="benefit-card" key={benefit.title}>
-              <span className="benefit-number">{String(index + 1).padStart(2, "0")}</span>
-              <h3>{benefit.title}</h3>
-              <p>{benefit.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section-pad audience-section">
-        <div className="content-grid audience-grid">
-          <div className="section-heading">
-            <p className="eyebrow light">Para quem é</p>
-            <h2>Para quem sente que a vida mudou — e precisa se reconhecer novamente.</h2>
-          </div>
-          <ul className="audience-list">
-            {content.audience.map((item) => (
-              <li key={item}>
-                <span>✓</span>
-                <p>{item}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="section-pad pathway-section">
-        <div className="section-heading centered-heading compact-heading">
-          <p className="eyebrow">Um caminho que continua</p>
-          <h2>Do relato pessoal à sua própria reflexão</h2>
-        </div>
-        <div className="pathway-grid">
-          {pathway.map((item) => (
-            <article className="pathway-card" key={item.number}>
-              <span className="pathway-number">{item.number}</span>
-              <p className="eyebrow">{item.eyebrow}</p>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
 
       <section className="section-pad plan-section" id="plano">
         <div className="plan-panel">
@@ -431,23 +441,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section-pad faq-section" id="perguntas">
-        <div className="content-grid faq-grid">
-          <div className="section-heading sticky-heading">
-            <p className="eyebrow">Perguntas frequentes</p>
-            <h2>Antes de começar</h2>
-          </div>
-          <div className="faq-list">
-            {publishedFaqs.map((item) => (
-              <details key={item.id}>
-                <summary>{item.question}<span>+</span></summary>
-                <p>{item.answer}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {content.newsletterPublished && (
         <section className="section-pad newsletter-section" id="novidades">
           <div className="newsletter-panel">
@@ -484,23 +477,6 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="section-pad final-cta">
-        <div className="final-card">
-          <img className="final-author-photo" src={content.secondaryImageUrl || content.authorImageUrl} alt="Clodisnei Cavalcante Peres" width="900" height="1350" loading="lazy" decoding="async" />
-          <div>
-            <p className="eyebrow light">Seu primeiro passo pode ser simples</p>
-            <h2>Recomeçar não é apagar o que aconteceu. É descobrir o que ainda pode nascer daqui.</h2>
-            <p>Conheça a obra, faça o plano gratuitamente e acompanhe os próximos projetos de Clodisnei Cavalcante Peres.</p>
-            <div className="button-row centered-buttons">
-              <TrackedLink className="button button-cream" href={content.planUrl} target="_blank" rel="noreferrer" eventName="plan_click">
-                Começar o plano gratuito
-              </TrackedLink>
-              <a className="button button-ghost" href="#livro">Conhecer o livro</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <footer className="site-footer">
         <div className="footer-inner">
           <div>
@@ -514,7 +490,7 @@ export default async function Home() {
           )}
           <div className="footer-meta">
             <p>Conteúdo educativo e reflexivo. Não substitui acompanhamento profissional.</p>
-            <div><a href="/privacidade">Privacidade</a><a href="/admin">Área administrativa</a></div>
+            <div><a href="/privacidade">Privacidade</a></div>
           </div>
         </div>
       </footer>

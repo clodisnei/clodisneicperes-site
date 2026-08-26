@@ -23,12 +23,11 @@ export default function MobileMenu({ hasVideo, hasReflections, hasContact }: Pro
       </button>
       {open && (
         <div className="mobile-menu-panel" id="mobile-navigation">
-          <a href="#autor" onClick={close}>O autor</a>
+          <a href="#autor" onClick={close}>Trajetória</a>
           {hasVideo && <a href="#video" onClick={close}>Minha história</a>}
+          <a href="#projetos" onClick={close}>Obras e projetos</a>
           <a href="#livro" onClick={close}>O livro</a>
-          <a href="#plano" onClick={close}>Plano gratuito</a>
           {hasReflections && <a href="#reflexoes" onClick={close}>Reflexões</a>}
-          <a href="#jornada" onClick={close}>A Jornada</a>
           {hasContact && <a href="#contato" onClick={close}>Contato</a>}
         </div>
       )}

@@ -8,6 +8,13 @@ export type BookLink = { id: string; label: string; detail: string; url: string;
 export type FaqItem = { id: string; question: string; answer: string; published: boolean };
 
 export type SiteContent = {
+  presentationEyebrow: string;
+  presentationTitle: string;
+  presentationIntro: string;
+  authorBiography: string[];
+  completedTraining: string[];
+  degreesInProgress: string[];
+  ongoingStudies: string[];
   heroEyebrow: string;
   heroTitle: string;
   heroIntro: string;
@@ -58,6 +65,19 @@ export type SiteContent = {
 };
 
 export const defaultSiteContent: SiteContent = {
+  presentationEyebrow: "Clodisnei Cavalcante Peres · autor",
+  presentationTitle: "Escrevo sobre aquilo que permanece em nós quando a vida muda.",
+  presentationIntro:
+    "Autor de O Que Restou de Mim, Clodisnei transforma uma trajetória marcada pela perda visual, pelo luto, pela fé e pela reconstrução da identidade em uma escrita autobiográfica e reflexiva.",
+  authorBiography: [
+    "Clodisnei Cavalcante Peres nasceu em Paranavaí, no Paraná, cidade onde reside atualmente. Durante anos, trabalhou com manutenção e conservação patrimonial, exercendo atividades como eletricista, pintor e encanador. Gostava de resolver problemas, cuidar dos espaços e encontrar soluções práticas para aquilo que precisava ser feito.",
+    "Aos trinta anos, enfrentou uma perda visual que transformou profundamente sua vida profissional, familiar e emocional. Mais tarde, precisou lidar com a redução progressiva da visão que restava, mudanças de cidade, interrupções na rotina, afastamentos, luto e a necessidade de reconstruir sua identidade para além daquilo que ainda conseguia realizar sozinho.",
+    "Com aproximadamente 5% de acuidade visual, utiliza recursos de acessibilidade, ampliação, comandos de voz e ditado em áudio para estudar, organizar projetos e escrever. Sua trajetória é marcada pela fé, pela curiosidade e pela busca de maneiras possíveis de continuar participando da própria vida.",
+    "O Que Restou de Mim é seu primeiro livro publicado oficialmente. A obra nasceu durante o luto pela morte de sua mãe e da necessidade de organizar a própria história.",
+  ],
+  completedTraining: ["Massoterapia", "Hipnose clínica", "Programação Neurolinguística — PNL"],
+  degreesInProgress: ["Ciências Econômicas · 2º ano", "Filosofia · 2º ano", "Modalidade EAD · Centro Universitário UniFatecie"],
+  ongoingStudies: ["Terapia sistêmica", "Neurociência", "Terapia Cognitivo-Comportamental"],
   heroEyebrow: "Livro · reflexão · recomeço",
   heroTitle: "Quando a vida muda por inteiro, ainda é possível reconstruir quem somos.",
   heroIntro:
@@ -197,6 +217,10 @@ export function mergeSiteContent(value: Partial<SiteContent>): SiteContent {
   return {
     ...defaultSiteContent,
     ...value,
+    authorBiography: cleanStringList(value.authorBiography, defaultSiteContent.authorBiography),
+    completedTraining: cleanStringList(value.completedTraining, defaultSiteContent.completedTraining),
+    degreesInProgress: cleanStringList(value.degreesInProgress, defaultSiteContent.degreesInProgress),
+    ongoingStudies: cleanStringList(value.ongoingStudies, defaultSiteContent.ongoingStudies),
     authorParagraphs: cleanStringList(value.authorParagraphs, defaultSiteContent.authorParagraphs),
     bookTopics: cleanStringList(value.bookTopics, defaultSiteContent.bookTopics),
     audience: cleanStringList(value.audience, defaultSiteContent.audience),
