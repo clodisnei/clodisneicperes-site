@@ -8,6 +8,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/reflexoes`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteUrl}/privacidade`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${siteUrl}/cerebro-clodisnei`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${siteUrl}/cerebro-clodisnei/privacidade`, changeFrequency: "yearly", priority: 0.2 },
     ...content.reflections.filter((item) => item.published && item.slug).map((item) => ({
       url: `${siteUrl}/reflexoes/${item.slug}`,
       lastModified: item.publishedAt || undefined,
